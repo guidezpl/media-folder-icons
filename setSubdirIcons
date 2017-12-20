@@ -1,0 +1,97 @@
+#!/bin/bash
+# For each immediate subdirectory, attempts to set folder.jpg as folder icon
+# Usage setSubdirIcons [-f] /path/to/folder
+
+usage() {					# print usage message & terminate
+	echo "Usage: ${0} [-f] directory" 1>&2
+	echo "Attemps to set each subdirectory's \"folder.jpg\" as its icon"
+	echo "Use -f flag to overwrite existing folder icons"
+	exit 1
+}
+
+CMDS="convert identify realpath basename dirname"
+for i in $CMDS; do
+    # command -v will return >0 when the $i is not found
+	command -v $i >/dev/null && continue || { echo "command '$i' not found."; exit 1; }
+done
+
+# Process arguments
+force=false
+if [ $# -eq 0 ] ; then usage ; fi		# no arguments ?
+if [ "$1" == "-f" ] ; then				# -f flag?
+	force=true
+	shift
+fi
+if [ $# -ne 1 ] ; then
+	echo "Wrong number of arguments" 1>&2
+	usage
+fi
+DIR="$1"
+
+# Script constants
+SCRIPTPATH=$(realpath "$0")
+SCRIPTNAME=$(basename "$SCRIPTPATH")
+SCRIPTFOLDER=$(dirname "$SCRIPTPATH")
+
+# File output constants
+SETICONPATH="$SCRIPTFOLDER/setIcon.py"
+LOG="$SCRIPTPATH-$(date +%F_%Hh%M).log"
+
+# Counters
+success=0
+prevsuccess=0
+failure=0
+
+echo "Firing up the flux capacitor..."
+echo -e "$SCRIPTNAME $DIR \n" > "$LOG"
+
+for subdir in "$DIR"/*/ ; do
+	folderJPG="$subdir""folder.jpg"
+	if [ -e "$folderJPG" ] ; then			#not case-sensitive
+		echo $subdir | tee -a "$LOG"
+		squarePNG="${folderJPG%.*}.png"
+		squareICNS="${folderJPG%.*}.icns"
+
+		# Get height and width
+		oldW=`identify -format "%w" "$folderJPG"`
+		oldH=`identify -format "%h" "$folderJPG"`
+		echo -en "\tfolder.jpg [${oldW}x${oldH}]" | tee -a "$LOG"
+
+		# Skip if icon is already set
+		if [ $force == "false" ] && [ -e "$subdir"/Icon$'\r' ] ; then
+			echo " -> icon previously set" ℹ️ | tee -a "$LOG"
+			prevsuccess=$((prevsuccess+1))
+			continue
+		fi
+
+		# Calculate new square size
+		p2=`identify -format "%[fx:2^(ceil(log(max(w,h))/log(2)))]" "$folderJPG"`
+
+		# Convert to square png
+		# Note: two-step conversion needed to avoid vertical black bars on either side
+		convert "$folderJPG" -resize ${p2}x${p2} -background transparent \
+			-gravity center -extent ${p2}x${p2} "$squarePNG"
+
+		# Convert square png to square icns
+		convert "$squarePNG" "$squareICNS"
+		echo -n " -> folder.icns [${p2}x${p2}]..." | tee -a "$LOG"
+
+		# Call python script setIcon
+		python "$SETICONPATH" "$squareICNS" "$subdir"
+		if [ ${?} -eq 0 ] ; then
+			echo "applied succesfully! ✅" | tee -a "$LOG"
+			success=$((success+1))
+		else
+			echo "unable to set file icon ❌" | tee -a "$LOG"
+			failure=$((failure+1))
+		fi
+
+		# Clean up
+		rm -f "$squarePNG" "$squareICNS"
+	else
+		echo "$folderJPG does not exist ❌" | tee -a "$LOG"
+		failure=$((failure+1))
+	fi
+done
+
+echo -e "\n ✅  $success \t ❌  $failure \t ℹ️  $prevsuccess \t\t Total: $((success+failure+prevsuccess))" | tee -a "$LOG"
