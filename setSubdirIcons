@@ -9,7 +9,7 @@ usage() {					# print usage message & terminate
 	exit 1
 }
 
-CMDS="convert identify realpath basename dirname"
+CMDS="convert identify realpath basename dirname python"
 for i in $CMDS; do
     # command -v will return >0 when the $i is not found
 	command -v $i >/dev/null && continue || { echo "command '$i' not found."; exit 1; }
