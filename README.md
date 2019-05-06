@@ -1,11 +1,9 @@
 # Set Folder Cover
-Script to set media folder covers. I was tired of boring old folder icons for my movie folders, so I wrote this bash (+ tiny bit of python) script.
-
-For each immediate subdirectory, applies "folder.jpg" as the subdirectory icon.
+Script to set media folder covers because I was tired of boring old folder icons for my movie folders. For each immediate subdirectory, applies "folder.jpg" as the directory icon.
 
 ![in-progress](https://raw.githubusercontent.com/guidezpl/Set-Folder-Cover/master/in-progress.png)
 
-Looks great in cover flow
+Looks great in cover flow!
 
 ![cover-flow](https://raw.githubusercontent.com/guidezpl/Set-Folder-Cover/master/cover-flow.png)
 
@@ -15,13 +13,9 @@ Tested on Mac OSX High Sierra, but should work on any Unix system.
 
 ### Prerequisites
 
-Directory structure:
-- Media_Folder/*/folder.jpg
+Directory structure: \<media folder\>/*/folder.jpg
 
-Commands needed: 
-- convert, identify (available with ```brew install imagemagick```)
-- realpath, basename, dirname
-- python
+```brew install imagemagick```
 
 
 ### Usage
@@ -29,7 +23,3 @@ Commands needed:
 ./setCovers [-f] <path to media folder>
 ```
 \-f flag overwrites any previously set icon
-
-```
-eg: ~/User/Downloads/setCovers ~/Movies
-```
