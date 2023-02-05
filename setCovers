@@ -1,15 +1,15 @@
 #!/bin/bash
-# For each immediate subdirectory, attempts to set folder.jpg as folder icon
+# For each immediate subdirectory, attempts to set poster.jpg as folder icon
 # Usage setSubdirIcons [-f] /path/to/folder
 
 usage() {					# print usage message & terminate
 	echo "Usage: ${0} [-f] directory" 1>&2
-	echo "Attemps to set each subdirectory's \"folder.jpg\" as its icon"
+	echo "Attemps to set each subdirectory's \"poster.jpg\" as its icon"
 	echo "Use -f flag to overwrite existing folder icons"
 	exit 1
 }
 
-CMDS="convert identify realpath basename dirname python"
+CMDS="convert identify realpath basename dirname python3"
 for i in $CMDS; do
     # command -v will return >0 when the $i is not found
 	command -v $i >/dev/null && continue || { echo "command '$i' not found."; exit 1; }
@@ -46,7 +46,7 @@ echo "Firing up the flux capacitor..."
 echo -e "$SCRIPTNAME $DIR \n" > "$LOG"
 
 for subdir in "$DIR"/*/ ; do
-	folderJPG="$subdir""folder.jpg"
+	folderJPG="$subdir""poster.jpg"
 	if [ -e "$folderJPG" ] ; then			#not case-sensitive
 		echo $subdir | tee -a "$LOG"
 		squarePNG="${folderJPG%.*}.png"
@@ -55,7 +55,7 @@ for subdir in "$DIR"/*/ ; do
 		# Get height and width
 		oldW=`identify -format "%w" "$folderJPG"`
 		oldH=`identify -format "%h" "$folderJPG"`
-		echo -en "\tfolder.jpg [${oldW}x${oldH}]" | tee -a "$LOG"
+		echo -en "\tposter.jpg [${oldW}x${oldH}]" | tee -a "$LOG"
 
 		# Skip if icon is already set
 		if [ $force == "false" ] && [ -e "$subdir"/Icon$'\r' ] ; then
@@ -76,8 +76,8 @@ for subdir in "$DIR"/*/ ; do
 		convert "$squarePNG" "$squareICNS"
 		echo -n " -> folder.icns [${p2}x${p2}]..." | tee -a "$LOG"
 
-		# Call python script setIcon
-		python "$SETICONPATH" "$squareICNS" "$subdir"
+		# Call python3 script setIcon
+		python3 "$SETICONPATH" "$squareICNS" "$subdir"
 		if [ ${?} -eq 0 ] ; then
 			echo "applied succesfully! ✅" | tee -a "$LOG"
 			success=$((success+1))
