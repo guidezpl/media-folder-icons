@@ -1,5 +1,5 @@
 #!/bin/bash
-# For each immediate subdirectory, attempts to set poster.jpg as folder icon
+# For each immediate subdirectory, attempts to set folder.jpg as folder icon
 # Usage setSubdirIcons [-f] /path/to/folder
 
 usage() {					# print usage message & terminate
