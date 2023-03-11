@@ -1,4 +1,4 @@
-# Set Folder Cover
+# Media Folder Icons
 Script to set media folder covers on macOS because I was tired of boring old folder icons for my movie folders. For each immediate subdirectory, applies `folder.jpg` as the directory icon.
 
 <img width="555" alt="image" src="https://user-images.githubusercontent.com/6655696/224489967-b76c939c-bb1c-44db-9b66-20d3886dbd61.png">
